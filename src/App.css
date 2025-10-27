@@ -18,7 +18,7 @@ body {
   flex-direction: row;
   justify-content: space-around;
   align-items: center;
-  height: 5vh;
+  min-height: 5vh;
   grid-column: 1 / -1;
 }
 

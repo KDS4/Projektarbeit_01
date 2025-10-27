@@ -1,27 +1,25 @@
 import { useState } from "react";
 import { Header } from "./Header";
+import { Sidebar } from "./Sidebar";
 
 import { Map } from "./Map";
 import "./App.css";
 import "leaflet/dist/leaflet.css";
-import data from "./assets/4.5_week.geojson.json";
-import { Sidebar } from "./Sidebar";
 
 function App() {
-  const earthquakes = data.features;
-
-  const [myMarker, setMyMarker] = useState({});
-  console.log(myMarker);
+  const [focussedEarthquake, setFocussedEarthquake] = useState({});
+  const [size, setSize] = useState(1);
+  console.log(focussedEarthquake);
 
   return (
     <div className="app">
       <Header />
-      <Sidebar />
+      <Sidebar earthquake={focussedEarthquake} size={size} setSize={setSize} />
       <div className="mainArea">
         <Map
-          earthquakes={earthquakes}
-          setMyMarker={setMyMarker}
-          myMarker={myMarker}
+          size={size}
+          setSize={setSize}
+          setFocussedEarthquake={setFocussedEarthquake}
         />
       </div>
     </div>
