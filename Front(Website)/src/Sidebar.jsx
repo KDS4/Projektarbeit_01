@@ -1,8 +1,8 @@
 import React from 'react';
-import { Box, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Box, Button, FormControl, InputLabel, Select, MenuItem, Typography } from '@mui/material';
 
 export const Sidebar = ({ 
-  standorte = [], 
+  locations = [], 
   selectedLocation, 
   setSelectedLocation, 
   onLoadData 
@@ -14,9 +14,10 @@ export const Sidebar = ({
       backgroundColor: '#f5f5f5',
       borderRight: '1px solid #ddd'
     }}>
-      <h2 style={{ marginBottom: '20px' }}>Filter</h2>
+      <Typography variant="h5" sx={{ mb: 3 }}>
+        Filter
+      </Typography>
       
-      {/* Standort-Auswahl */}
       <FormControl fullWidth sx={{ mb: 3 }}>
         <InputLabel>Standort</InputLabel>
         <Select
@@ -25,15 +26,14 @@ export const Sidebar = ({
           label="Standort"
         >
           <MenuItem value="all">Alle Standorte</MenuItem>
-          {standorte.filter(s => s !== 'all').map(standort => (
-            <MenuItem key={standort} value={standort}>
-              {standort}
+          {locations.filter(loc => loc !== 'all').map(location => (
+            <MenuItem key={location} value={location}>
+              {location}
             </MenuItem>
           ))}
         </Select>
       </FormControl>
 
-      {/* Laden-Button */}
       <Button 
         variant="contained" 
         fullWidth 
@@ -43,8 +43,14 @@ export const Sidebar = ({
           '&:hover': { backgroundColor: '#1565c0' }
         }}
       >
-        🔄 Daten laden
+        Daten laden
       </Button>
+
+      <Box sx={{ mt: 3, p: 2, backgroundColor: '#fff', borderRadius: 1 }}>
+        <Typography variant="caption" color="text.secondary">
+          Wähle einen Standort aus und klicke auf "Daten laden" um die Statistiken zu aktualisieren.
+        </Typography>
+      </Box>
     </Box>
   );
 };
