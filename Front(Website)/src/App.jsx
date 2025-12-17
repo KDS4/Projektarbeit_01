@@ -1,49 +1,71 @@
-import React, { useState, useEffect } from "react";
-import { Header } from "./Header";
-import { Sidebar } from "./Sidebar";
-import { MainContent } from "./MainContent";
-import "./App.css";
+import React, { useState, useEffect } from 'react';
+import { Header } from './Header';
+import { Sidebar } from './Sidebar';
+import { MainContent } from './MainContent';
+import './App.css';
+
+const API_URL = 'http://localhost:8000/api';
 
 function App() {
-  const [selectedLocation, setSelectedLocation] = useState("all");
-  const [selectedTimeRange, setSelectedTimeRange] = useState({
-    start: "2021-09-28",
-    end: "2021-12-31"
-  });
+  const [locations, setLocations] = useState([]);
+  const [selectedLocation, setSelectedLocation] = useState('all');
   const [chartData, setChartData] = useState([]);
   const [locationData, setLocationData] = useState([]);
+  const [mapData, setMapData] = useState([]);
+  const [statistics, setStatistics] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [availableLocations, setAvailableLocations] = useState([]);
 
+  // Beim Start laden
   useEffect(() => {
-    fetchAvailableLocations();
+    loadLocations();
+    loadData();
   }, []);
 
-  const fetchAvailableLocations = async () => {
+  // Standorte laden
+  const loadLocations = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/locations');
+      const response = await fetch(`${API_URL}/locations`);
       const data = await response.json();
-      setAvailableLocations(data);
+      setLocations(['all', ...data.locations]);
     } catch (error) {
       console.error('Fehler beim Laden der Standorte:', error);
     }
   };
 
-  const fetchData = async () => {
+  // Daten laden
+  const loadData = async () => {
     setLoading(true);
+    
     try {
-      const params = new URLSearchParams({
-        location: selectedLocation,
-        start_date: selectedTimeRange.start,
-        end_date: selectedTimeRange.end
-      });
+      // 1. Zeitreihen-Daten
+      const timeseriesRes = await fetch(
+        `${API_URL}/timeseries?location=${selectedLocation}`
+      );
+      const timeseriesData = await timeseriesRes.json();
+      setChartData(timeseriesData);
+
+      // 2. Standort-Vergleich
+      const comparisonRes = await fetch(`${API_URL}/location-comparison`);
+      const comparisonData = await comparisonRes.json();
+      setLocationData(comparisonData);
+
+      // 3. Statistiken
+      const statsRes = await fetch(
+        `${API_URL}/statistics?location=${selectedLocation}`
+      );
+      const statsData = await statsRes.json();
+      setStatistics(statsData);
+
+      // 4. Map-Daten
+      const mapRes = await fetch(`${API_URL}/map-data`);
+      const mapDataResult = await mapRes.json();
+      setMapData(mapDataResult);
       
-      const response = await fetch(`http://localhost:8000/api/pedestrians?${params}`);
-      const data = await response.json();
-      setChartData(data.time_series);
-      setLocationData(data.location_comparison);
+      console.log('Daten erfolgreich geladen');
+      
     } catch (error) {
-      console.error('Fehler beim Laden der Daten:', error);
+      console.error('Fehler beim Laden:', error);
+      alert('Backend nicht erreichbar. Server auf Port 8000 gestartet?');
     } finally {
       setLoading(false);
     }
@@ -52,22 +74,24 @@ function App() {
   return (
     <div className="app">
       <Header />
-      <Sidebar 
-        selectedLocation={selectedLocation}
-        setSelectedLocation={setSelectedLocation}
-        selectedTimeRange={selectedTimeRange}
-        setSelectedTimeRange={setSelectedTimeRange}
-        availableLocations={availableLocations}
-        onFetchData={fetchData}
-        loading={loading}
-      />
-      <MainContent 
-        chartData={chartData}
-        locationData={locationData}
-        loading={loading}
-        selectedLocation={selectedLocation}
-        selectedTimeRange={selectedTimeRange}
-      />
+      <div className="app-container">
+        <Sidebar 
+          locations={locations}
+          selectedLocation={selectedLocation}
+          setSelectedLocation={setSelectedLocation}
+          onLoadData={loadData}
+        />
+        <MainContent 
+          chartData={chartData}
+          locationData={locationData}
+          mapData={mapData}
+          statistics={statistics}
+          loading={loading}
+          selectedLocation={selectedLocation}
+        />
+      </div>
     </div>
   );
 }
+
+export default App;

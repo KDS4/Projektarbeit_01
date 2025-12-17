@@ -1,112 +1,87 @@
-import { 
-  Box, Typography, Card, CardContent, Grid, 
-  CircularProgress, Alert 
-} from "@mui/material";
-import { TimeSeriesChart } from "./TimeSeriesChart";
-import { LocationComparisonChart } from "./LocationComparisonChart";
-import { StatisticsCards } from "./StatisticsCards";
-import { TrendingUp } from "@mui/icons-material";
+import React from 'react';
+import { Box, Typography, CircularProgress, Card, CardContent } from '@mui/material';
+import { Timechart } from './Timechart';
+import { Lokalisation } from './Lokalisation';
 
 export const MainContent = ({ 
-  chartData,
-  locationData,
-  loading,
-  selectedLocation,
-  selectedTimeRange
+  chartData, 
+  locationData, 
+  statistik,
+  loading, 
+  selectedLocation 
 }) => {
-
+  
   if (loading) {
     return (
       <Box className="mainArea" sx={{ 
         display: 'flex', 
         justifyContent: 'center', 
         alignItems: 'center',
-        height: '100%',
-        flexDirection: 'column'
+        height: '100vh'
       }}>
-        <CircularProgress size={60} sx={{ mb: 2 }} />
-        <Typography variant="h6" color="text.secondary">
-          Analysiere Passantendaten...
+        <CircularProgress size={60} />
+        <Typography variant="h6" sx={{ ml: 2 }}>
+          Lade Daten...
         </Typography>
       </Box>
     );
   }
 
-  if (!chartData || chartData.length === 0) {
-    return (
-      <Box className="mainArea" sx={{ p: 3 }}>
-        <Alert severity="info" sx={{ mb: 2 }}>
-          Keine Daten für die gewählten Filter verfügbar. 
-          Bitte passen Sie Zeitraum oder Standort an.
-        </Alert>
-      </Box>
-    );
-  }
-
   return (
-    <Box className="mainArea">
-      <Box sx={{ p: 3 }}>
-        <Box sx={{ mb: 4 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-            <TrendingUp sx={{ mr: 1, fontSize: 32, color: 'primary.main' }} />
-            <Typography variant="h4" component="h1">
-              Passanten-Analyse
-            </Typography>
-          </Box>
-          
-          <Typography variant="h6" color="text.secondary" gutterBottom>
-            Kinder vs. Erwachsene - Zeitliche und räumliche Verteilung
-          </Typography>
-          
-          <Box sx={{ 
-            backgroundColor: 'grey.50', 
-            p: 2, 
-            borderRadius: 1,
-            border: '1px solid',
-            borderColor: 'grey.200'
-          }}>
-            <Typography variant="body1" color="text.secondary">
-              <strong>Aktuelle Filter:</strong><br />
-              Zeitraum: {selectedTimeRange.start} bis {selectedTimeRange.end}<br />
-              Standort: {selectedLocation === 'all' ? 'Alle Standorte' : selectedLocation}
-            </Typography>
-          </Box>
-        </Box>
+    <Box className="mainArea" sx={{ padding: 3 }}>
+      <Typography variant="h4" gutterBottom>
+        Passanten Dashboard
+      </Typography>
+      
+      <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+        Standort: {selectedLocation === 'all' ? 'Alle Standorte' : selectedLocation}
+      </Typography>
 
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <StatisticsCards data={chartData} />
-          </Grid>
-          
-          <Grid item xs={12} lg={8}>
-            <Card elevation={2}>
-              <CardContent sx={{ p: 3 }}>
-                <Typography variant="h6" gutterBottom>
-                  Zeitverlauf: Passanten nach Altersgruppen
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  Durchschnittliche Anzahl Passanten pro Stunde
-                </Typography>
-                <TimeSeriesChart data={chartData} />
-              </CardContent>
-            </Card>
-          </Grid>
-          
-          <Grid item xs={12} lg={4}>
-            <Card elevation={2}>
-              <CardContent sx={{ p: 3 }}>
-                <Typography variant="h6" gutterBottom>
-                  Vergleich nach Standorten
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  Gesamtanzahl im gewählten Zeitraum
-                </Typography>
-                <LocationComparisonChart data={locationData} />
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
+      {/* Statistik-Karten */}
+      {statistik && (
+        <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+          <Card sx={{ flex: 1 }}>
+            <CardContent>
+              <Typography variant="h6">Gesamt</Typography>
+              <Typography variant="h4">{statistik.gesamt}</Typography>
+            </CardContent>
+          </Card>
+          <Card sx={{ flex: 1 }}>
+            <CardContent>
+              <Typography variant="h6">Durchschnitt</Typography>
+              <Typography variant="h4">{statistik.durchschnitt}</Typography>
+            </CardContent>
+          </Card>
+          <Card sx={{ flex: 1 }}>
+            <CardContent>
+              <Typography variant="h6">Maximum</Typography>
+              <Typography variant="h4">{statistik.maximum}</Typography>
+            </CardContent>
+          </Card>
+        </Box>
+      )}
+
+      {/* Charts */}
+      <Box sx={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 3 }}>
+        <Card>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>Zeitverlauf</Typography>
+            <Timechart data={chartData} />
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>Standort-Vergleich</Typography>
+            <Lokalisation data={locationData} />
+          </CardContent>
+        </Card>
       </Box>
+
+      {/* Daten-Anzahl */}
+      <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+        {chartData.length} Einträge geladen
+      </Typography>
     </Box>
   );
 };
