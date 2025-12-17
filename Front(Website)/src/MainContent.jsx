@@ -1,12 +1,15 @@
 import React from 'react';
-import { Box, Typography, CircularProgress, Card, CardContent } from '@mui/material';
+import { Box, Typography, CircularProgress, Grid, Card, CardContent } from '@mui/material';
 import { Timechart } from './Timechart';
 import { Lokalisation } from './Lokalisation';
+import { StatisticsCards } from './Statistik';
+import { Map } from './Map';
 
 export const MainContent = ({ 
   chartData, 
-  locationData, 
-  statistik,
+  locationData,
+  mapData,
+  statistics,
   loading, 
   selectedLocation 
 }) => {
@@ -17,10 +20,11 @@ export const MainContent = ({
         display: 'flex', 
         justifyContent: 'center', 
         alignItems: 'center',
-        height: '100vh'
+        height: '100vh',
+        flexDirection: 'column'
       }}>
         <CircularProgress size={60} />
-        <Typography variant="h6" sx={{ ml: 2 }}>
+        <Typography variant="h6" sx={{ mt: 2 }}>
           Lade Daten...
         </Typography>
       </Box>
@@ -29,6 +33,7 @@ export const MainContent = ({
 
   return (
     <Box className="mainArea" sx={{ padding: 3 }}>
+      
       <Typography variant="h4" gutterBottom>
         Passanten Dashboard
       </Typography>
@@ -37,50 +42,51 @@ export const MainContent = ({
         Standort: {selectedLocation === 'all' ? 'Alle Standorte' : selectedLocation}
       </Typography>
 
-      {/* Statistik-Karten */}
-      {statistik && (
-        <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
-          <Card sx={{ flex: 1 }}>
-            <CardContent>
-              <Typography variant="h6">Gesamt</Typography>
-              <Typography variant="h4">{statistik.gesamt}</Typography>
-            </CardContent>
-          </Card>
-          <Card sx={{ flex: 1 }}>
-            <CardContent>
-              <Typography variant="h6">Durchschnitt</Typography>
-              <Typography variant="h4">{statistik.durchschnitt}</Typography>
-            </CardContent>
-          </Card>
-          <Card sx={{ flex: 1 }}>
-            <CardContent>
-              <Typography variant="h6">Maximum</Typography>
-              <Typography variant="h4">{statistik.maximum}</Typography>
-            </CardContent>
-          </Card>
-        </Box>
+      {statistics && (
+        <StatisticsCards data={[{
+          hour: '',
+          count: statistics.total,
+          age_group: 'Alle',
+          location_name: selectedLocation
+        }]} />
       )}
 
-      {/* Charts */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 3 }}>
-        <Card>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>Zeitverlauf</Typography>
-            <Timechart data={chartData} />
-          </CardContent>
-        </Card>
+      <Grid container spacing={3} sx={{ mt: 2 }}>
         
-        <Card>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>Standort-Vergleich</Typography>
-            <Lokalisation data={locationData} />
-          </CardContent>
-        </Card>
-      </Box>
+        <Grid item xs={12} lg={8}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Zeitverlauf - Erwachsene vs Kinder
+              </Typography>
+              <Timechart data={chartData} />
+            </CardContent>
+          </Card>
+        </Grid>
+        
+        <Grid item xs={12} lg={4}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Standort-Vergleich
+              </Typography>
+              <Lokalisation data={locationData} />
+            </CardContent>
+          </Card>
+        </Grid>
 
-      {/* Daten-Anzahl */}
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-        {chartData.length} Einträge geladen
+        <Grid item xs={12}>
+          <Card>
+            <CardContent>
+              <Map data={mapData} />
+            </CardContent>
+          </Card>
+        </Grid>
+        
+      </Grid>
+
+      <Typography variant="body2" color="text.secondary" sx={{ mt: 3 }}>
+        {chartData.length} Eintraege geladen
       </Typography>
     </Box>
   );
